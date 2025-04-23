@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fire Evacuation Result</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Evacuation Plan</h2>
+        <h3>Start Location: {{ start }}</h3>
+        <h4>Rooms on Fire: {{ fire_rooms }}</h4>
+
+        <!-- <h3>Escape Path:</h3>
+        <ul>
+            {% for direction in path %}
+                <li>{{ direction }}</li>
+            {% endfor %}
+        </ul> -->
+
+        <h3>Escape Path:</h3>
+        <ul>
+            {% for direction in directions %}
+                <li>{{ direction }}</li>
+            {% endfor %}
+        </ul>
+    
+        <h3>Map Visualization</h3>
+        <div class="grid">
+            {% for row in grid %}
+                <div class="row" style="display: flex;">
+                    {% for cell in row %}
+                        <div class="cell" style="width: 40px; height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center;">
+                            {% if cell == 'fire' %}
+                                🔥
+                            {% elif cell == 'start' %}
+                                🧍
+                            {% elif cell == 'path' %}
+                                ➡️
+                            {% else %}
+                                ⬜
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        
+
+        <!-- <h3>Map Visualization</h3>
+        <div class="grid">
+            {% for row in grid %}
+                <div class="row">
+                    {% for cell in row %}
+                        <div class="cell {% if cell == 'fire' %}fire{% endif %}">
+                            {% if cell == 'fire' %}
+                                🔥
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div> -->
+
+        <a href="{{ url_for('dashboard') }}">Choose Another Location</a>
+    </div>
+</body>
+</html>
