@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fire Emergency SOS Alert System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f8f8;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        header {
+            background-color: #000;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .alert-container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .alert-instructions {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+        
+        .alert-button {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 1.5rem 2rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .alert-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 0, 0, 0.5);
+        }
+        
+        .alert-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 8px rgba(255, 0, 0, 0.4);
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(255, 0, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        .alert-icon {
+            font-size: 1.8rem;
+        }
+        
+        footer {
+            background-color: #000;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+        
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 100;
+            max-width: 90%;
+            width: 320px;
+        }
+        
+        .popup.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .popup h3 {
+            margin-bottom: 0.5rem;
+            color: #ff0000;
+        }
+        
+        .popup p {
+            margin-bottom: 1.5rem;
+        }
+        
+        .popup-btn {
+            background-color: #000;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 99;
+        }
+        
+        .overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Email management styles */
+        .email-manager {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+            padding: 1.5rem;
+            width: 100%;
+        }
+        
+        .email-manager h2 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .email-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .email-input {
+            flex: 1;
+            padding: 0.7rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .add-email-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.7rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .add-email-btn:hover {
+            background-color: #0069d9;
+        }
+        
+        .email-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .email-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .email-list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .remove-email-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.5rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .remove-email-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .settings-toggle {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .settings-toggle:hover {
+            background-color: #5a6268;
+        }
+        
+        .settings-panel {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .settings-panel.show {
+            display: block;
+        }
+        
+        /* Notification message */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 90;
+        }
+        
+        .notification.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Location input */
+        .location-input {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 10px auto;
+            border: 4px solid rgba(255, 0, 0, 0.3);
+            border-top: 4px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinner.show {
+            display: block;
+        }
+        
+        /* Web3Forms hidden form */
+        .hidden-form {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .alert-button {
+                padding: 1.2rem 1.5rem;
+                font-size: 1.3rem;
+            }
+            
+            .alert-instructions {
+                font-size: 0.9rem;
+            }
+            
+            .email-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Fire Emergency SOS Alert System</h1>
+    </header>
+    
+    <main>
+        <div class="alert-container">
+            <div class="alert-instructions">
+                <h2>Emergency Fire Alert</h2>
+                <p>Press the SOS button below to immediately alert emergency services about a fire incident at your registered location.</p>
+                <p><strong>Only use in case of an actual emergency.</strong></p>
+                <input type="text" id="locationInput" class="location-input" placeholder="Your current location (e.g., 123 Main St, City)" value="123 Main St, Springfield">
+            </div>
+            
+            <button id="sosButton" class="alert-button pulse">
+                <span class="alert-icon">🔥</span> FIRE SOS ALERT
+            </button>
+            
+            <div id="spinner" class="spinner"></div>
+            
+            <button id="settingsToggle" class="settings-toggle">
+                ⚙️ Email Settings
+            </button>
+            
+            <div id="settingsPanel" class="settings-panel">
+                <div class="email-manager">
+                    <h2>Manage Emergency Contacts</h2>
+                    <p>Add email addresses that will be notified in case of fire emergency:</p>
+                    
+                    <form id="emailForm" class="email-form">
+                        <input type="email" id="emailInput" class="email-input" placeholder="Enter email address" required>
+                        <button type="submit" class="add-email-btn">Add Contact</button>
+                    </form>
+                    
+                    <div class="email-list" id="emailList">
+                        <p id="emptyListMessage">No emergency contacts added yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>Fire Emergency SOS Alert System &copy; 2025</p>
+        <p>For emergencies only. False alarms may result in penalties.</p>
+    </footer>
+    
+    <div id="confirmationPopup" class="popup">
+        <h3>Alert Sent!</h3>
+        <p>Your emergency fire alert has been transmitted to local authorities.</p>
+        <p id="emailConfirmation"></p>
+        <p>Help is on the way. Please evacuate to a safe location if possible.</p>
+        <button class="popup-btn" id="closePopup">Close</button>
+    </div>
+    
+    <div id="overlay" class="overlay"></div>
+    
+    <div id="notification" class="notification">
+        Email address added successfully!
+    </div>
+    
+    <!-- Hidden Web3Forms form -->
+    <form id="web3form" class="hidden-form">
+        <input type="hidden" name="access_key" value="227e57f4-b059-4ccf-afcb-c27e5007c031">
+        <input type="hidden" name="subject" value="URGENT: FIRE EMERGENCY ALERT">
+        <input type="hidden" name="from_name" value="Fire Emergency SOS System">
+        <input type="hidden" id="emailTo" name="to_email" value="">
+        <input type="hidden" id="formLocation" name="location" value="">
+        <input type="hidden" id="formMessage" name="message" value="">
+        <div id="formResult"></div>
+    </form>
+    
+    <script>
+        // DOM Elements
+        const sosButton = document.getElementById('sosButton');
+        const confirmationPopup = document.getElementById('confirmationPopup');
+        const emailConfirmation = document.getElementById('emailConfirmation');
+        const overlay = document.getElementById('overlay');
+        const closePopup = document.getElementById('closePopup');
+        const settingsToggle = document.getElementById('settingsToggle');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const emailForm = document.getElementById('emailForm');
+        const emailInput = document.getElementById('emailInput');
+        const emailList = document.getElementById('emailList');
+        const emptyListMessage = document.getElementById('emptyListMessage');
+        const notification = document.getElementById('notification');
+        const locationInput = document.getElementById('locationInput');
+        const spinner = document.getElementById('spinner');
+        
+        // Web3Forms Elements
+        const web3form = document.getElementById('web3form');
+        const emailTo = document.getElementById('emailTo');
+        const formLocation = document.getElementById('formLocation');
+        const formMessage = document.getElementById('formMessage');
+        const formResult = document.getElementById('formResult');
+        
+        // Load saved emails from localStorage
+        let emergencyContacts = JSON.parse(localStorage.getItem('emergencyContacts')) || [];
+        
+        // Initialize email list
+        function initializeEmailList() {
+            if (emergencyContacts.length > 0) {
+                emptyListMessage.style.display = 'none';
+                renderEmailList();
+            }
+        }
+        
+        // Render the email list
+        function renderEmailList() {
+            // Clear current list except for the empty message
+            const items = emailList.querySelectorAll('.email-list-item');
+            items.forEach(item => item.remove());
+            
+            // Add each email
+            emergencyContacts.forEach((email, index) => {
+                const item = document.createElement('div');
+                item.className = 'email-list-item';
+                
+                const emailText = document.createElement('span');
+                emailText.textContent = email;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-email-btn';
+                removeBtn.textContent = 'Remove';
+                removeBtn.dataset.index = index;
+                
+                item.appendChild(emailText);
+                item.appendChild(removeBtn);
+                emailList.appendChild(item);
+                
+                // Add event listener to remove button
+                removeBtn.addEventListener('click', function() {
+                    removeEmail(index);
+                });
+            });
+            
+            // Show/hide empty message
+            emptyListMessage.style.display = emergencyContacts.length === 0 ? 'block' : 'none';
+        }
+        
+        // Add email function
+        function addEmail(email) {
+            if (!email) return;
+            
+            // Check if email is already in the list
+            if (emergencyContacts.includes(email)) {
+                showNotification('Email already exists!', 'warning');
+                return;
+            }
+            
+            // Add email to array
+            emergencyContacts.push(email);
+            
+            // Save to localStorage
+            localStorage.setItem('emergencyContacts', JSON.stringify(emergencyContacts));
+            
+            // Update UI
+            renderEmailList();
+            emailInput.value = '';
+            
+            // Show notification
+            showNotification('Email added successfully!');
+        }
+        
+        // Remove email function
+        function removeEmail(index) {
+            emergencyContacts.splice(index, 1);
+            localStorage.setItem('emergencyContacts', JSON.stringify(emergencyContacts));
+            renderEmailList();
+            showNotification('Email removed!');
+        }
+        
+        // Send email notifications function using Web3Forms
+        async function sendEmailNotifications(location) {
+            if (emergencyContacts.length === 0) {
+                console.log('No emergency contacts to notify');
+                return false;
+            }
+            
+            const timestamp = new Date().toLocaleString();
+            let successCount = 0;
+            
+            // Show loading spinner
+            spinner.classList.add('show');
+            
+            // Send email to each contact
+            for (const email of emergencyContacts) {
+                try {
+                    // Prepare form data for this recipient
+                    emailTo.value = email;
+                    formLocation.value = location;
+                    formMessage.value = `
+                        URGENT: FIRE EMERGENCY ALERT
+                        
+                        A fire emergency has been reported at: ${location}
+                        
+                        Time of alert: ${timestamp}
+                        
+                        Emergency services have been notified. Please take appropriate action and contact emergency services if you have more information.
+                        
+                        This is an automated emergency alert message.
+                    `;
+                    
+                    // Create form data object
+                    const formData = new FormData(web3form);
+                    const object = Object.fromEntries(formData);
+                    const json = JSON.stringify(object);
+                    
+                    // Send to Web3Forms API
+                    const response = await fetch('https://api.web3forms.com/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: json
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.status == 200) {
+                        console.log(`Email sent to ${email}: ${data.message}`);
+                        successCount++;
+                    } else {
+                        console.log(`Failed to send to ${email}: ${data.message}`);
+                    }
+                } catch (error) {
+                    console.error(`Error sending to ${email}:`, error);
+                }
+            }
+            
+            // Hide spinner
+            spinner.classList.remove('show');
+            
+            return successCount > 0;
+        }
+        
+        // Show notification function
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            
+            if (type === 'warning') {
+                notification.style.backgroundColor = '#ffc107';
+                notification.style.color = '#000';
+            } else {
+                notification.style.backgroundColor = '#28a745';
+                notification.style.color = '#fff';
+            }
+            
+            setTimeout(() => {
+                notification.className = 'notification';
+            }, 3000);
+        }
+        
+        // Event Listeners
+        sosButton.addEventListener('click', async function() {
+            // Validate location
+            const location = locationInput.value.trim();
+            if (!location) {
+                showNotification('Please enter your location!', 'warning');
+                locationInput.focus();
+                return;
+            }
+            
+            // Disable the button temporarily to prevent multiple clicks
+            sosButton.disabled = true;
+            sosButton.style.opacity = '0.7';
+            sosButton.classList.remove('pulse');
+            
+            // Get user location from input
+            const userLocation = location;
+            
+            // Send email notifications
+            const emailsSent = await sendEmailNotifications(userLocation);
+            
+            // Show confirmation popup
+            confirmationPopup.classList.add('show');
+            overlay.classList.add('show');
+            
+            // Update email confirmation text
+            if (emailsSent) {
+                emailConfirmation.textContent = `Emergency notifications sent to ${emergencyContacts.length} contact(s).`;
+            } else {
+                if (emergencyContacts.length === 0) {
+                    emailConfirmation.textContent = 'No emergency contacts configured for notifications.';
+                } else {
+                    emailConfirmation.textContent = 'Failed to send some email notifications. Please try again.';
+                }
+            }
+            
+            // Re-enable the button after 5 seconds
+            setTimeout(function() {
+                sosButton.disabled = false;
+                sosButton.style.opacity = '1';
+                sosButton.classList.add('pulse');
+            }, 5000);
+        });
+        
+        closePopup.addEventListener('click', function() {
+            confirmationPopup.classList.remove('show');
+            overlay.classList.remove('show');
+        });
+        
+        settingsToggle.addEventListener('click', function() {
+            settingsPanel.classList.toggle('show');
+            settingsToggle.textContent = settingsPanel.classList.contains('show') 
+                ? '⚙️ Hide Settings' 
+                : '⚙️ Email Settings';
+        });
+        
+        emailForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            if (email) {
+                addEmail(email);
+            }
+        });
+        
+        // Initialize the application
+        initializeEmailList();
+    </script>
+</body>
+</html>
